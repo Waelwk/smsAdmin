@@ -82,7 +82,7 @@
     </div>
 
     <!-- Data Table -->
-    <div style="overflow-x:auto;" *ngIf="!loading">
+    <div class="table-scroll" *ngIf="!loading">
       <table class="data-table" *ngIf="chauffeurs.length > 0; else emptyTpl">
         <thead>
           <tr>

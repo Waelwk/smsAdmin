@@ -1,4 +1,4 @@
-<div class="pg">
+<div class="pg pg-fill">
 
   <!-- Back -->
   <div class="detail-back">
@@ -6,6 +6,8 @@
       <ion-icon name="arrow-back-outline"></ion-icon> Retour aux chauffeurs
     </button>
   </div>
+
+  <div class="pg-scroll">
 
   <!-- Skeleton -->
   <div *ngIf="loading">
@@ -71,10 +73,9 @@
             <div class="info-item" *ngIf="chauffeur.chargeParHeure">
               <div class="info-label">Charge / heure</div>
               <div class="info-value">{{ chauffeur.chargeParHeure | number:'1.2-2' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+  </div>
+</div>
 
       <!-- NFC Status -->
       <div class="card">
@@ -153,4 +154,5 @@
     </div>
 
   </div>
+</div>
 </div>

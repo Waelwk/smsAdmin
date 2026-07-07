@@ -10,6 +10,7 @@ import { filter } from 'rxjs/operators';
 })
 export class TabsComponent implements OnInit {
   activeRoute = '';
+  fillRoute = false;
 
   tabs = [
     /* { label: 'Dashboard',  icon: 'home-outline',     tab: 'dashboard'  }, */
@@ -25,7 +26,10 @@ export class TabsComponent implements OnInit {
   ngOnInit(): void {
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
-      .subscribe((e: any) => { this.activeRoute = e.urlAfterRedirects; });
+      .subscribe((e: any) => {
+      this.activeRoute = e.urlAfterRedirects;
+      this.fillRoute = /^\/chauffeurs\/.+/.test(this.activeRoute);
+    });
   }
 
   isActive(tab: string): boolean {

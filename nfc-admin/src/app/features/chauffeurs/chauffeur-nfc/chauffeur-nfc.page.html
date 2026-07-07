@@ -1,4 +1,4 @@
-<div class="pg">
+<div class="pg pg-fill">
 
   <!-- Back -->
   <div class="detail-back">
@@ -6,6 +6,8 @@
       <ion-icon name="arrow-back-outline"></ion-icon> Retour
     </button>
   </div>
+
+  <div class="pg-scroll">
 
   <!-- Header -->
   <div class="pg-header">
@@ -75,33 +77,33 @@
     <!-- Write panel -->
     <div class="nfc-write-panel">
 
-<div class="card" *ngIf="status === 'idle'">
-         <div class="nfc-state-body">
-           <div class="nfc-state-icon nfc-state-icon--idle">📶</div>
-           <div class="nfc-state-title">Prêt à écrire</div>
-           <div class="nfc-state-desc">Cliquez sur le bouton puis approchez la carte NFC de votre appareil.</div>
-           <button class="btn btn-primary btn-lg" style="width:100%;" (click)="startWrite()">
-             <ion-icon name="card-outline"></ion-icon> Écrire sur la carte NFC
-           </button>
-         </div>
-       </div>
+      <div class="card" *ngIf="status === 'idle'">
+        <div class="nfc-state-body">
+          <div class="nfc-state-icon nfc-state-icon--idle">📶</div>
+          <div class="nfc-state-title">Prêt à écrire</div>
+          <div class="nfc-state-desc">Cliquez sur le bouton puis approchez la carte NFC de votre appareil.</div>
+          <button class="btn btn-primary btn-lg" style="width:100%;" (click)="startWrite()">
+            <ion-icon name="card-outline"></ion-icon> Écrire sur la carte NFC
+          </button>
+        </div>
+      </div>
 
-       <div class="card" *ngIf="status === 'scanning'">
-         <div class="nfc-state-body">
-           <div class="nfc-spinner"></div>
-           <div class="nfc-state-title" style="color:var(--c-sky);">En attente de la carte...</div>
-           <div class="nfc-state-desc">Approchez la carte NFC de votre appareil</div>
-           <button class="btn btn-ghost btn-sm" (click)="cancelWrite()">Annuler</button>
-         </div>
-       </div>
+      <div class="card" *ngIf="status === 'scanning'">
+        <div class="nfc-state-body">
+          <div class="nfc-spinner"></div>
+          <div class="nfc-state-title" style="color:var(--c-sky);">En attente de la carte...</div>
+          <div class="nfc-state-desc">Approchez la carte NFC de votre appareil</div>
+          <button class="btn btn-ghost btn-sm" (click)="cancelWrite()">Annuler</button>
+        </div>
+      </div>
 
-       <div class="card" *ngIf="status === 'writing'">
-         <div class="nfc-state-body">
-           <div class="nfc-spinner"></div>
-           <div class="nfc-state-title" style="color:var(--c-sky);">Écriture en cours...</div>
-           <div class="nfc-state-desc">Maintenez la carte NFC près de l'appareil</div>
-         </div>
-       </div>
+      <div class="card" *ngIf="status === 'writing'">
+        <div class="nfc-state-body">
+          <div class="nfc-spinner"></div>
+          <div class="nfc-state-title" style="color:var(--c-sky);">Écriture en cours...</div>
+          <div class="nfc-state-desc">Maintenez la carte NFC près de l'appareil</div>
+        </div>
+      </div>
 
       <div class="card" *ngIf="status === 'success'">
         <div class="nfc-state-body">
@@ -141,4 +143,5 @@
     </div>
   </div>
 
+  </div>
 </div>
