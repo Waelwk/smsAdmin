@@ -32,6 +32,7 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
   currentStep = 0;
   steps = ['Données chargées', 'Approcher la carte', 'Écriture terminée'];
   private nfcListener: PluginListenerHandle | null = null;
+  private scanning = false;
 
   constructor(private router: Router, private ngZone: NgZone) {}
 
@@ -42,8 +43,14 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
     if (!this.nfcData) this.router.navigate(['/chauffeurs']);
   }
 
+  // Ionic lifecycle: release the NFC session when leaving the page so Android's
+  // default NFC reader can be used by other apps again.
+  ionViewWillLeave(): void {
+    this.disarmScanner();
+  }
+
   ngOnDestroy(): void {
-    this.removeListener();
+    this.disarmScanner();
   }
 
   private async checkNfcSupport(): Promise<void> {
@@ -56,7 +63,6 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
   }
 
   async startWrite(): Promise<void> {
-    console.log('🚀 startWrite called');
     if (!this.nfcData) return;
 
     if (!this.nfcSupported) {
@@ -67,33 +73,57 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
 
     this.status = 'scanning';
     this.currentStep = 1;
+    await this.armScanner();
+  }
 
+  /** Start (or keep) the NFC scanning session + listener. Idempotent. */
+  private async armScanner(): Promise<void> {
+    if (this.scanning || !this.nfcSupported) return;
     try {
-      await this.removeListener();
-      console.log('📻 Adding nfcEvent listener');
-      this.nfcListener = await CapacitorNfc.addListener('nfcEvent', (event: NfcEvent) => {
-        console.log('📡 nfcEvent received:', event);
-        this.ngZone.run(() => this.handleTagDetected(event));
-      });
-
-      console.log('🔍 Starting NFC scan');
+      if (!this.nfcListener) {
+        this.nfcListener = await CapacitorNfc.addListener('nfcEvent', (event: NfcEvent) => {
+          this.ngZone.run(() => this.handleTagDetected(event));
+        });
+      }
       await CapacitorNfc.startScanning({
         alertMessage: 'Approchez la carte NFC',
         invalidateAfterFirstRead: false,
         androidReaderModeFlags: ANDROID_READER_FLAGS_WITH_NDEF
       });
-      console.log('✅ NFC scan started');
+      this.scanning = true;
     } catch (err: any) {
-      console.error('❌ Error starting scan:', err);
+      console.error('Error arming NFC scanner:', err);
       this.status = 'error';
       this.errorMsg = err?.message ?? 'Erreur lors du démarrage du scan NFC.';
-      this.removeListener();
+    }
+  }
+
+  /**
+   * Re-arm the reader mode after a write so the listener stays active and the
+   * next tag is handled by this app. stopScanning()+startScanning() refreshes
+   * the foreground (reader mode) session on both Android & iOS.
+   */
+  private async rearmScanner(): Promise<void> {
+    this.scanning = false;
+    try { await CapacitorNfc.stopScanning(); } catch { /* already stopped */ }
+    try {
+      await CapacitorNfc.startScanning({
+        alertMessage: 'Approchez la carte NFC',
+        invalidateAfterFirstRead: false,
+        androidReaderModeFlags: ANDROID_READER_FLAGS_WITH_NDEF
+      });
+      this.scanning = true;
+    } catch (err: any) {
+      console.error('Error re-arming NFC scanner:', err);
     }
   }
 
   private async handleTagDetected(event: NfcEvent): Promise<void> {
+    if (this.status === 'writing') return; // ignore concurrent events
+    if (!this.nfcData) return;
+
     try {
-      const texts = [this.nfcData!.record1];
+      const texts = [this.nfcData.record1];
       if (this.nfcData?.record2 != null) {
         texts.push(this.nfcData.record2);
       }
@@ -102,16 +132,17 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
       this.status = 'writing';
       // Single write attempt, exactly like NFC Tools: allowFormat lets the
       // plugin NDEF-format blank/formatable tags (NTAG, Ultralight, MIFARE
-      // Classic with default keys) before writing. Retrying a second write on
-      // the same tap consumes the session and throws "Tag became stale".
+      // Classic with default keys) before writing.
       await CapacitorNfc.write({
         records,
         allowFormat: true,
       });
-      await this.cleanupAfterWrite();
 
       this.status = 'success';
       this.currentStep = 2;
+      // Keep the app in the foreground: re-arm so the next tag is handled by
+      // this app and Android's default NFC reader never launches.
+      await this.rearmScanner();
     } catch (err: any) {
       this.status = 'error';
       const msg = err?.message ?? "Erreur lors de l'écriture NFC.";
@@ -122,26 +153,23 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
       } else {
         this.errorMsg = msg;
       }
-      this.cleanupAfterWrite();
+      // Keep listening so the user can simply tap the card again to retry.
+      await this.rearmScanner();
     }
   }
 
-  private async cleanupAfterWrite(): Promise<void> {
-    try {
-      await CapacitorNfc.stopScanning();
-    } catch (stopErr) {
-      console.warn('⚠️ Error stopping scan:', stopErr);
-    }
-    try {
-      await this.removeListener();
-    } catch (listenerErr) {
-      console.warn('⚠️ Error removing listener:', listenerErr);
+  /** Stop the scanning session + remove the listener (page left / cancelled). */
+  private async disarmScanner(): Promise<void> {
+    this.scanning = false;
+    try { await CapacitorNfc.stopScanning(); } catch { /* ignore */ }
+    if (this.nfcListener) {
+      try { await this.nfcListener.remove(); } catch { /* ignore */ }
+      this.nfcListener = null;
     }
   }
 
   cancelWrite(): void {
-    CapacitorNfc.stopScanning();
-    this.removeListener();
+    this.disarmScanner();
     this.status = 'idle';
     this.currentStep = 0;
   }
@@ -149,17 +177,11 @@ export class ChauffeurNfcPage implements OnInit, OnDestroy {
   reset(): void {
     this.status = 'idle';
     this.currentStep = 0;
+    this.armScanner();
   }
 
   goBack(): void {
-    this.removeListener();
+    this.disarmScanner();
     this.router.navigate(['/chauffeurs']);
-  }
-
-  private async removeListener(): Promise<void> {
-    if (this.nfcListener) {
-      await this.nfcListener.remove();
-      this.nfcListener = null;
-    }
   }
 }
