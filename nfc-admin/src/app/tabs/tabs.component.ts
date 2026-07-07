@@ -12,10 +12,10 @@ export class TabsComponent implements OnInit {
   activeRoute = '';
 
   tabs = [
-    { label: 'Dashboard',  icon: 'home-outline',     tab: 'dashboard'  },
+    /* { label: 'Dashboard',  icon: 'home-outline',     tab: 'dashboard'  }, */
     { label: 'Chauffeurs', icon: 'people-outline',   tab: 'chauffeurs' },
     { label: 'Véhicules',  icon: 'car-outline',      tab: 'vehicules'  },
-    { label: 'Cartes NFC', icon: 'card-outline',     tab: 'cartes'     },
+   /*  { label: 'Cartes NFC', icon: 'card-outline',     tab: 'cartes'     }, */
     { label: 'Responsable', icon: 'id-card-outline',  tab: 'creation-carte-responsable' },
     { label: 'Paramètres', icon: 'settings-outline', tab: 'parametres' },
   ];
