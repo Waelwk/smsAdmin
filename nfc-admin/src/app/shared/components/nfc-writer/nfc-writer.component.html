@@ -1,0 +1,47 @@
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📶 Écriture NFC</span>
+  </div>
+  <div class="card-body">
+
+    <div *ngIf="!nfcSupported" style="background:var(--c-warning-bg); border-radius:var(--r-sm);
+         padding:12px 16px; display:flex; gap:10px; align-items:flex-start;">
+      <span>⚠️</span>
+      <div style="font-size:13px; color:#d97706;">NFC non disponible sur cet appareil ou navigateur.</div>
+    </div>
+
+    <ng-container *ngIf="nfcData && nfcSupported">
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <div style="background:var(--c-surface); border-radius:var(--r-sm); padding:10px 14px; border:1px solid var(--c-border);">
+          <div style="font-size:11px; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">Record 1 — CTag</div>
+          <div style="font-family:monospace; font-size:13px; letter-spacing:.08em;">{{ nfcData.record1 }}</div>
+        </div>
+        <div *ngIf="nfcData.record2" style="background:var(--c-surface); border-radius:var(--r-sm); padding:10px 14px; border:1px solid var(--c-border);">
+          <div style="font-size:11px; font-weight:600; color:var(--c-muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px;">Record 2 — Mot de passe</div>
+          <div style="font-family:monospace; font-size:13px;">●●●●●●●●</div>
+        </div>
+      </div>
+
+      <div *ngIf="statusMessage" style="padding:10px 14px; border-radius:var(--r-sm); margin-bottom:14px; font-size:13px;"
+           [style.background]="status === 'success' ? 'var(--c-success-bg)' : status === 'error' ? 'var(--c-danger-bg)' : 'var(--c-info-bg)'"
+           [style.color]="status === 'success' ? '#059669' : status === 'error' ? 'var(--c-danger)' : '#2196b8'">
+        {{ statusMessage }}
+      </div>
+
+      <div *ngIf="status === 'waiting'" style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <div style="width:20px; height:20px; border-radius:50%; border:2px solid var(--c-sky);
+                    border-top-color:transparent; animation:spin 1s linear infinite;"></div>
+        <span style="font-size:13px; color:var(--c-sky);">En attente de la carte...</span>
+      </div>
+
+      <button *ngIf="status !== 'waiting'" class="btn btn-primary" style="width:100%;" (click)="write()">
+        📶 Écrire sur la carte NFC
+      </button>
+      <button *ngIf="status === 'waiting'" class="btn btn-danger" style="width:100%;" (click)="cancel()">
+        ✕ Annuler
+      </button>
+    </ng-container>
+
+  </div>
+</div>
+<style>@keyframes spin { to { transform:rotate(360deg); } }</style>

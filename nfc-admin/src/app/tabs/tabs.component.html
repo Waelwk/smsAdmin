@@ -1,0 +1,59 @@
+<div class="tabs-shell">
+
+  <!-- ═══ HEADER ═════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-icon">📶</div>
+      <div class="brand-text">
+        <span class="brand-name">NFC Admin</span>
+        <span class="brand-sub">Gestion des cartes</span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="header-search">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="text" placeholder="Rechercher..." />
+        <kbd>⌘K</kbd>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="hdr-btn" aria-label="Notifications">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="hdr-btn" aria-label="Aide">
+        <ion-icon name="help-circle-outline"></ion-icon>
+      </button>
+      <div class="user-chip">
+        <div class="user-avatar">AD</div>
+        <span class="user-name">Admin</span>
+        <ion-icon name="chevron-down-outline" class="user-chevron"></ion-icon>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ CONTENT ════════════════════════════════════ -->
+  <ion-content class="tabs-content" [fullscreen]="true">
+    <router-outlet></router-outlet>
+  </ion-content>
+
+  <!-- ═══ BOTTOM NAV ══════════════════════════════════ -->
+  <div class="bottom-nav-wrap">
+    <nav class="bottom-nav-pill" role="navigation" aria-label="Navigation principale">
+      <button
+        *ngFor="let t of tabs"
+        class="tab-btn"
+        [class.active]="isActive(t.tab)"
+        (click)="navigate(t.tab)"
+        [attr.aria-label]="t.label"
+        [attr.aria-current]="isActive(t.tab) ? 'page' : null">
+        <span class="tab-indicator"></span>
+        <ion-icon [name]="t.icon" class="tab-icon"></ion-icon>
+        <span class="tab-label">{{ t.label }}</span>
+      </button>
+    </nav>
+  </div>
+
+</div>

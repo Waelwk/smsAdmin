@@ -1,0 +1,79 @@
+nfc-admin/.angular/cache/16.2.16/angular-webpack/1a1056140745741b20bb2f5fbf38a9ae159d5a2e/2.pack
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Build .NET
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+
+# NuGet
+packages/
+*.nupkg
+
+# Logs
+*.log
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Angular / React / Vue
+dist/
+build/
+
+# Ionic / Cordova / Capacitor
+platforms/
+plugins/
+www/
+android/
+ios/
+
+# Android
+.gradle/
+*.apk
+*.aab
+*.dex
+
+# Temporary files
+temp/
+tmp/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Git
+.git-credentials
+# Git pack files
+*.pack
+*.idx
+
+# Android build artifacts
+*.dex
+*.apk
+*.aab
+
+# Visual Studio
+.vs/
+.vscode/
+
+# .NET
+bin/
+obj/
+
+# Node.js
+node_modules/
+
+# Angular/Ionic
+dist/
+www/
+
+# Android
+.gradle/
+platforms/
+plugins/

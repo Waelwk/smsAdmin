@@ -1,0 +1,71 @@
+<div class="pg">
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title">Paramètres</h1>
+      <p class="pg-sub"></p>
+    </div>
+  </div>
+
+  <div class="settings-list">
+    <div class="settings-section">
+      <div class="settings-section-title">Serveur API</div>
+
+      <ion-list>
+        <ion-item>
+          <ion-label position="stacked">Adresse IP</ion-label>
+          <ion-input
+            type="text"
+            placeholder="ex: 192.168.1.10"
+            [value]="ip"
+            (ionInput)="onIpInput($event)"
+            autocomplete="off"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Port</ion-label>
+          <ion-input
+            type="number"
+            placeholder="ex: 5000"
+            [value]="port"
+            (ionInput)="onPortInput($event)"
+            inputmode="numeric"
+          ></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <div class="settings-actions">
+        <button class="btn btn-primary" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Cartes NFC</div>
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <div class="settings-item-label">Création Carte NFC Responsable</div>
+          <div class="settings-item-sub">Générer et écrire le code responsable sur une carte NFC.</div>
+        </div>
+        <button class="btn btn-primary btn-sm" routerLink="/creation-carte-responsable">
+          <ion-icon name="card-outline"></ion-icon> Accéder
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">À propos</div>
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <div class="settings-item-label">Version</div>
+          <div class="settings-item-sub">1.0.0</div>
+        </div>
+      </div>
+      <div class="settings-item">
+        <div class="settings-item-info">
+          <div class="settings-item-label">URL API actuelle</div>
+          <div class="settings-item-sub">{{ currentApiUrl }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

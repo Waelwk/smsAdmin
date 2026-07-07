@@ -1,0 +1,146 @@
+<div class="pg">
+
+  <!-- Back -->
+  <div class="detail-back">
+    <button class="btn btn-ghost btn-sm" (click)="goBack()">
+      <ion-icon name="arrow-back-outline"></ion-icon> Retour
+    </button>
+  </div>
+
+  <!-- Header -->
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title">Écriture carte NFC</h1>
+      <p class="pg-sub">Approchez la carte NFC pour écrire les données du chauffeur</p>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="nfc-steps">
+    <div *ngFor="let s of steps; let i = index" class="nfc-step-item">
+      <div class="nfc-step-circle"
+           [class.active]="i <= currentStep"
+           [class.done]="i < currentStep">
+        {{ i < currentStep ? '✓' : i + 1 }}
+      </div>
+      <span class="nfc-step-label" [class.active]="i <= currentStep">{{ s }}</span>
+      <span *ngIf="i < steps.length - 1" class="nfc-step-sep">›</span>
+    </div>
+  </div>
+
+  <!-- Two-column layout on tablet, single on mobile -->
+  <div class="nfc-write-layout">
+
+    <!-- Card preview -->
+    <div class="nfc-write-preview" *ngIf="nfcData">
+      <div class="section-label">Carte à programmer</div>
+      <div class="nfc-card">
+        <div class="nfc-card-top">
+          <div class="nfc-card-chip"></div>
+          <span class="nfc-badge">CHAUFFEUR NFC</span>
+        </div>
+        <div class="nfc-card-number">{{ nfcData.record1 }}</div>
+        <div class="nfc-card-bottom">
+          <div class="nfc-card-info">
+            <div class="nfc-card-label">Record 1 — CTag</div>
+            <div class="nfc-card-value" style="font-family:monospace;font-size:12px;">{{ nfcData.record1 }}</div>
+          </div>
+          <div class="nfc-card-info nfc-card-info--right" *ngIf="nfcData.record2">
+            <div class="nfc-card-label">Record 2 — MDP</div>
+            <div class="nfc-card-value">●●●●●●</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header"><span class="card-title">Données à écrire</span></div>
+        <div class="card-body">
+          <div class="data-record">
+            <div class="info-label">Record 1 — CTag</div>
+            <div class="code-block">{{ nfcData.record1 }}</div>
+          </div>
+          <div class="data-record" *ngIf="nfcData.record2">
+            <div class="info-label">Record 2 — Mot de passe</div>
+            <div class="code-block" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <span>{{ showPassword ? nfcData.record2 : '●●●●●●●●' }}</span>
+              <button class="btn btn-ghost btn-sm" (click)="showPassword = !showPassword">
+                {{ showPassword ? 'Masquer' : 'Afficher' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <app-nfc-diagnostic></app-nfc-diagnostic>
+    </div>
+
+    <!-- Write panel -->
+    <div class="nfc-write-panel">
+
+<div class="card" *ngIf="status === 'idle'">
+         <div class="nfc-state-body">
+           <div class="nfc-state-icon nfc-state-icon--idle">📶</div>
+           <div class="nfc-state-title">Prêt à écrire</div>
+           <div class="nfc-state-desc">Cliquez sur le bouton puis approchez la carte NFC de votre appareil.</div>
+           <button class="btn btn-primary btn-lg" style="width:100%;" (click)="startWrite()">
+             <ion-icon name="card-outline"></ion-icon> Écrire sur la carte NFC
+           </button>
+         </div>
+       </div>
+
+       <div class="card" *ngIf="status === 'scanning'">
+         <div class="nfc-state-body">
+           <div class="nfc-spinner"></div>
+           <div class="nfc-state-title" style="color:var(--c-sky);">En attente de la carte...</div>
+           <div class="nfc-state-desc">Approchez la carte NFC de votre appareil</div>
+           <button class="btn btn-ghost btn-sm" (click)="cancelWrite()">Annuler</button>
+         </div>
+       </div>
+
+       <div class="card" *ngIf="status === 'writing'">
+         <div class="nfc-state-body">
+           <div class="nfc-spinner"></div>
+           <div class="nfc-state-title" style="color:var(--c-sky);">Écriture en cours...</div>
+           <div class="nfc-state-desc">Maintenez la carte NFC près de l'appareil</div>
+         </div>
+       </div>
+
+      <div class="card" *ngIf="status === 'success'">
+        <div class="nfc-state-body">
+          <div class="nfc-state-icon nfc-state-icon--success">✅</div>
+          <div class="nfc-state-title" style="color:var(--c-success);">Carte écrite avec succès !</div>
+          <div class="nfc-state-desc">Les données ont été correctement inscrites sur la carte NFC.</div>
+          <div class="nfc-state-actions">
+            <button class="btn btn-outline" (click)="reset()">Écrire une autre carte</button>
+            <button class="btn btn-primary" (click)="goBack()">Terminer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="status === 'error'">
+        <div class="nfc-state-body">
+          <div class="nfc-state-icon nfc-state-icon--error">❌</div>
+          <div class="nfc-state-title" style="color:var(--c-danger);">Échec de l'écriture</div>
+          <div class="nfc-state-desc">{{ errorMsg }}</div>
+          <button class="btn btn-outline" (click)="reset()">Réessayer</button>
+        </div>
+      </div>
+
+      <div class="card mt-4" *ngIf="!nfcSupported">
+        <div class="card-body">
+          <div class="warning-banner">
+            <ion-icon name="warning-outline"></ion-icon>
+            <div>
+              <div style="font-weight:600;color:#d97706;">NFC non disponible</div>
+              <div style="font-size:12px;color:var(--c-muted);margin-top:3px;">
+                Cet appareil ne supporte pas le NFC ou l'accès n'est pas autorisé.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

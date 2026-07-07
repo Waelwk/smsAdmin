@@ -1,0 +1,138 @@
+<div class="pg">
+
+  <!-- Back -->
+  <div class="detail-back">
+    <button class="btn btn-ghost btn-sm" routerLink="/vehicules">
+      <ion-icon name="arrow-back-outline"></ion-icon> Retour aux véhicules
+    </button>
+  </div>
+
+  <!-- Skeleton -->
+  <div *ngIf="loading">
+    <div class="detail-header-body" style="margin-bottom:20px;">
+      <div class="skeleton" style="width:60px;height:60px;border-radius:14px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-title" style="margin-bottom:8px;"></div>
+        <div class="skeleton skeleton-text" style="width:40%;"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="skeleton" style="height:220px;border-radius:16px;"></div>
+      <div class="skeleton" style="height:220px;border-radius:16px;"></div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="vehicule && !loading">
+
+    <!-- Header Card -->
+    <div class="card detail-header-card">
+      <div class="detail-header-body">
+        <div class="detail-avatar" style="border-radius:var(--r-md);font-size:26px;">🚗</div>
+        <div class="detail-header-info">
+          <h2 class="detail-title">{{ vehicule.libVehicule || 'Véhicule' }}</h2>
+          <div class="detail-meta">
+            <span class="code-tag">{{ vehicule.cVehicule }}</span>
+            <span class="badge" [class.badge-success]="vehicule.bActif" [class.badge-muted]="!vehicule.bActif">
+              {{ vehicule.bActif ? '● Actif' : '● Inactif' }}
+            </span>
+            <span class="badge" [class.badge-success]="vehicule.bDisponible" [class.badge-danger]="!vehicule.bDisponible">
+              {{ vehicule.bDisponible ? '✓ Disponible' : '✗ Indisponible' }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-header-actions">
+          <button *ngIf="vehicule.hasCTag" class="btn btn-primary" (click)="creerCarte()">
+            <ion-icon name="card-outline"></ion-icon> Créer carte NFC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid-2 detail-grid">
+
+      <!-- Info -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Informations</span></div>
+        <div class="card-body">
+          <div class="info-list">
+            <div class="info-item">
+              <div class="info-label">N° de série</div>
+              <div class="info-value" style="font-family:monospace;">{{ vehicule.numeroSerie || '—' }}</div>
+            </div>
+            <div class="info-item" *ngIf="vehicule.chargeMax">
+              <div class="info-label">Charge max</div>
+              <div class="info-value">{{ vehicule.chargeMax | number:'1.0-0' }} kg</div>
+            </div>
+            <div class="info-item" *ngIf="vehicule.chargeLibre">
+              <div class="info-label">Charge libre</div>
+              <div class="info-value">{{ vehicule.chargeLibre | number:'1.0-0' }} kg</div>
+            </div>
+            <div class="info-item" *ngIf="vehicule.coutparKM">
+              <div class="info-label">Coût / km</div>
+              <div class="info-value">{{ vehicule.coutparKM | number:'1.2-4' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTag -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Carte NFC</span></div>
+        <div class="card-body">
+          <div class="status-row" style="margin-bottom:12px;">
+            <div>
+              <div class="status-row-title">CTag NFC</div>
+              <div class="status-row-sub">
+                {{ vehicule.hasCTag ? 'Identifiant NFC assigné' : 'Aucun CTag assigné' }}
+              </div>
+            </div>
+            <span *ngIf="vehicule.hasCTag" class="badge badge-success">✓ Assigné</span>
+          </div>
+
+          <div *ngIf="vehicule.cTag" class="code-block">{{ vehicule.cTag }}</div>
+
+          <div *ngIf="!vehicule.hasCTag" class="action-stack">
+            <button class="btn btn-primary btn-sm" (click)="generateCTag()">
+              <ion-icon name="flash-outline"></ion-icon> Générer automatiquement
+            </button>
+            <button class="btn btn-outline btn-sm" (click)="showCtagInput = !showCtagInput">
+              <ion-icon name="create-outline"></ion-icon> Saisir manuellement
+            </button>
+            <div *ngIf="showCtagInput" class="action-stack">
+              <input class="form-input" [(ngModel)]="ctagManuel" placeholder="Ex: AABBCC112233" maxlength="20">
+              <button class="btn btn-success btn-sm" (click)="saveCTagManuel()" [disabled]="!ctagManuel.trim()">
+                <ion-icon name="checkmark-outline"></ion-icon> Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NFC Preview -->
+    <div *ngIf="vehicule.hasCTag" class="nfc-preview-section">
+      <div class="section-label">Aperçu de la carte NFC</div>
+      <div class="nfc-card">
+        <div class="nfc-card-top">
+          <div class="nfc-card-chip"></div>
+          <span class="nfc-badge">VÉHICULE NFC</span>
+        </div>
+        <div class="nfc-card-number">{{ vehicule.cTag }}</div>
+        <div class="nfc-card-bottom">
+          <div class="nfc-card-info">
+            <div class="nfc-card-label">Véhicule</div>
+            <div class="nfc-card-value">{{ vehicule.libVehicule }}</div>
+          </div>
+          <div class="nfc-card-info nfc-card-info--right">
+            <div class="nfc-card-label">Code</div>
+            <div class="nfc-card-value">{{ vehicule.cVehicule }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

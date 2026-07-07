@@ -1,0 +1,7 @@
+{
+  "name": "nfc-admin",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

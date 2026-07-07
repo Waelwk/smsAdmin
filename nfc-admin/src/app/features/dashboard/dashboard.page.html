@@ -1,0 +1,38 @@
+<div class="pg">
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title">Dashboard</h1>
+      <p class="pg-sub"></p>
+    </div>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stat-grid">
+    <div class="stat-card" *ngFor="let s of stats$ | async">
+      <div class="stat-icon" [class]="s.color">
+        <ion-icon [name]="s.icon"></ion-icon>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ s.value }}</div>
+        <div class="stat-label">{{ s.label }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="section-title">Actions rapides</div>
+  <div class="quick-actions">
+    <button class="qa-btn" routerLink="/chauffeurs">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Gérer les chauffeurs</span>
+    </button>
+    <button class="qa-btn" routerLink="/vehicules">
+      <ion-icon name="car-outline"></ion-icon>
+      <span>Gérer les véhicules</span>
+    </button>
+    <button class="qa-btn qa-btn--accent" routerLink="/cartes">
+      <ion-icon name="card-outline"></ion-icon>
+      <span>Créer une carte NFC</span>
+    </button>
+  </div>
+</div>

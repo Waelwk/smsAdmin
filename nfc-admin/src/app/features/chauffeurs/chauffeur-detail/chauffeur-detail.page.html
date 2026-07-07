@@ -1,0 +1,156 @@
+<div class="pg">
+
+  <!-- Back -->
+  <div class="detail-back">
+    <button class="btn btn-ghost btn-sm" routerLink="/chauffeurs">
+      <ion-icon name="arrow-back-outline"></ion-icon> Retour aux chauffeurs
+    </button>
+  </div>
+
+  <!-- Skeleton -->
+  <div *ngIf="loading">
+    <div class="detail-header-body" style="margin-bottom:20px;">
+      <div class="skeleton skeleton-avatar" style="width:60px;height:60px;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div class="skeleton skeleton-title" style="margin-bottom:8px;"></div>
+        <div class="skeleton skeleton-text" style="width:40%;"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="skeleton" style="height:200px;border-radius:16px;"></div>
+      <div class="skeleton" style="height:200px;border-radius:16px;"></div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="chauffeur && !loading">
+
+    <!-- Header Card -->
+    <div class="card detail-header-card">
+      <div class="detail-header-body">
+        <div class="detail-avatar">{{ (chauffeur.nomPrenom || 'N').charAt(0).toUpperCase() }}</div>
+        <div class="detail-header-info">
+          <h2 class="detail-title">{{ chauffeur.nomPrenom || 'Chauffeur' }}</h2>
+          <div class="detail-meta">
+            <span class="code-tag">{{ chauffeur.matricule }}</span>
+            <span class="badge" [class.badge-success]="chauffeur.bActif" [class.badge-muted]="!chauffeur.bActif">
+              {{ chauffeur.bActif ? '● Actif' : '● Inactif' }}
+            </span>
+            <span *ngIf="chauffeur.typeEmp" class="badge badge-sky">{{ chauffeur.typeEmp }}</span>
+          </div>
+        </div>
+        <div class="detail-header-actions">
+          <button *ngIf="chauffeur.hasPassword && chauffeur.hasCTag"
+                  class="btn btn-primary" (click)="creerCarte()">
+            <ion-icon name="card-outline"></ion-icon> Créer carte NFC
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid-2 detail-grid">
+
+      <!-- Info -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Informations</span></div>
+        <div class="card-body">
+          <div class="info-list">
+            <div class="info-item" *ngIf="chauffeur.cEquipe">
+              <div class="info-label">Équipe</div>
+              <div class="info-value">{{ chauffeur.cEquipe }}</div>
+            </div>
+            <div class="info-item" *ngIf="chauffeur.cSociete">
+              <div class="info-label">Société</div>
+              <div class="info-value">{{ chauffeur.cSociete }}</div>
+            </div>
+            <div class="info-item" *ngIf="chauffeur.cSite">
+              <div class="info-label">Site</div>
+              <div class="info-value">{{ chauffeur.cSite }}</div>
+            </div>
+            <div class="info-item" *ngIf="chauffeur.chargeParHeure">
+              <div class="info-label">Charge / heure</div>
+              <div class="info-value">{{ chauffeur.chargeParHeure | number:'1.2-2' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NFC Status -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Statut NFC</span></div>
+        <div class="card-body">
+
+          <div class="status-row">
+            <div>
+              <div class="status-row-title">Mot de passe</div>
+              <div class="status-row-sub">
+                {{ chauffeur.hasPassword ? 'Mot de passe défini' : 'Aucun mot de passe généré' }}
+              </div>
+            </div>
+            <span *ngIf="chauffeur.hasPassword" class="badge badge-success">✓ Défini</span>
+            <button *ngIf="!chauffeur.hasPassword" class="btn btn-primary btn-sm"
+                    (click)="generatePassword()" [disabled]="loading">
+              <ion-icon name="key-outline"></ion-icon> Générer
+            </button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div>
+            <div class="status-row" style="margin-bottom:12px;">
+              <div>
+                <div class="status-row-title">CTag NFC</div>
+                <div class="status-row-sub">
+                  {{ chauffeur.hasCTag ? 'Identifiant NFC assigné' : 'Aucun CTag assigné' }}
+                </div>
+              </div>
+              <span *ngIf="chauffeur.hasCTag" class="badge badge-success">✓ Assigné</span>
+            </div>
+
+            <div *ngIf="chauffeur.tagC" class="code-block">{{ chauffeur.tagC }}</div>
+
+            <div *ngIf="!chauffeur.hasCTag" class="action-stack">
+              <button class="btn btn-primary btn-sm" (click)="generateCTag()">
+                <ion-icon name="flash-outline"></ion-icon> Générer automatiquement
+              </button>
+              <button class="btn btn-outline btn-sm" (click)="showCtagInput = !showCtagInput">
+                <ion-icon name="create-outline"></ion-icon> Saisir manuellement
+              </button>
+              <div *ngIf="showCtagInput" class="action-stack">
+                <input class="form-input" [(ngModel)]="ctagManuel" placeholder="Ex: A3F2B1C4D5E6" maxlength="20">
+                <button class="btn btn-success btn-sm" (click)="saveCTagManuel()" [disabled]="!ctagManuel.trim()">
+                  <ion-icon name="checkmark-outline"></ion-icon> Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- NFC Card Preview -->
+    <div *ngIf="chauffeur.hasPassword && chauffeur.hasCTag" class="nfc-preview-section">
+      <div class="section-label">Aperçu de la carte NFC</div>
+      <div class="nfc-card">
+        <div class="nfc-card-top">
+          <div class="nfc-card-chip"></div>
+          <span class="nfc-badge">NFC CARD</span>
+        </div>
+        <div class="nfc-card-number">{{ chauffeur.tagC }}</div>
+        <div class="nfc-card-bottom">
+          <div class="nfc-card-info">
+            <div class="nfc-card-label">Titulaire</div>
+            <div class="nfc-card-value">{{ chauffeur.nomPrenom }}</div>
+          </div>
+          <div class="nfc-card-info nfc-card-info--right">
+            <div class="nfc-card-label">Matricule</div>
+            <div class="nfc-card-value">{{ chauffeur.matricule }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,125 @@
+<div class="pg">
+
+  <!-- Back -->
+  <div class="detail-back">
+    <button class="btn btn-ghost btn-sm" (click)="goBack()">
+      <ion-icon name="arrow-back-outline"></ion-icon> Retour
+    </button>
+  </div>
+
+  <!-- Header -->
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title">Création Carte NFC Responsable</h1>
+      <p class="pg-sub">Saisissez un code client pour générer et écrire le code responsable sur une carte NFC.</p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Informations carte</span>
+    </div>
+    <div class="card-body">
+
+      <!-- Code Client -->
+      <div class="form-group">
+        <label class="form-label">Code Client <span class="required">*</span></label>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="ex: 0001006155"
+          [value]="codeClient"
+          (input)="onCodeClientInput($event)"
+          inputmode="numeric"
+          autocomplete="off"
+        >
+        <div class="form-hint">Chiffres uniquement, sans espaces.</div>
+      </div>
+
+      <!-- Code Responsable -->
+      <div class="form-group mt-4">
+        <label class="form-label">Code Responsable</label>
+        <input
+          class="form-input"
+          type="text"
+          [value]="codeResponsable"
+          disabled
+          readonly
+        >
+        <div class="form-hint">Généré automatiquement à partir du code client (suffixe « RE »).</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-stack mt-4">
+        <button class="btn btn-outline" (click)="generateCode()">
+          <ion-icon name="create-outline"></ion-icon> Générer le code Responsable
+        </button>
+        <button class="btn btn-primary" (click)="startWrite()">
+          <ion-icon name="card-outline"></ion-icon> Écrire sur la carte NFC
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div *ngIf="status === 'success'" class="card mt-4">
+    <div class="card-body">
+      <div class="status-row">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:22px;">✅</span>
+          <div>
+            <div class="status-row-title" style="color:var(--c-success);">Carte Responsable créée avec succès.</div>
+            <div class="status-row-sub">Le code <strong>{{ codeResponsable }}</strong> a été écrit sur la carte NFC.</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" (click)="reset()">Écrire une autre carte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="status === 'error'" class="error-banner">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <div style="flex:1; min-width:0;">
+      <div class="error-banner-title">Impossible d'écrire sur la carte NFC.</div>
+      <div class="error-banner-msg">{{ errorMsg }}</div>
+    </div>
+    <button class="btn btn-outline btn-sm" (click)="reset()">Réessayer</button>
+  </div>
+
+  <!-- Waiting state -->
+  <div *ngIf="status === 'scanning'" class="card mt-4">
+    <div class="nfc-state-body">
+      <div class="nfc-spinner"></div>
+      <div class="nfc-state-title" style="color:var(--c-sky);">En attente de la carte...</div>
+      <div class="nfc-state-desc">Approchez la carte NFC de votre appareil</div>
+      <button class="btn btn-ghost btn-sm" (click)="reset()">Annuler</button>
+    </div>
+  </div>
+
+  <div *ngIf="status === 'writing'" class="card mt-4">
+    <div class="nfc-state-body">
+      <div class="nfc-spinner"></div>
+      <div class="nfc-state-title" style="color:var(--c-sky);">Écriture en cours...</div>
+      <div class="nfc-state-desc">Maintenez la carte NFC près de l'appareil</div>
+    </div>
+  </div>
+
+  <!-- NFC not supported -->
+  <div *ngIf="!nfcSupported" class="card mt-4">
+    <div class="card-body">
+      <div class="warning-banner">
+        <ion-icon name="warning-outline"></ion-icon>
+        <div>
+          <div style="font-weight:600; color:#d97706;">NFC non disponible</div>
+          <div style="font-size:12px; color:var(--c-muted); margin-top:3px;">
+            Cet appareil ne supporte pas le NFC ou l'accès n'est pas autorisé.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,161 @@
+<div class="pg">
+
+  <!-- Header -->
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title">Chauffeurs</h1>
+      <p class="pg-sub"></p>
+    </div>
+  </div>
+
+  <!-- Stat Grid -->
+  <div class="stat-grid" *ngIf="!loading">
+    <div class="stat-card">
+      <div class="stat-icon night"><ion-icon name="people-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ chauffeurs.length }}</div>
+        <div class="stat-label">Total chauffeurs</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success"><ion-icon name="card-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ chauffeurs | withCTag }}</div>
+        <div class="stat-label">Avec CTag NFC</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon sky"><ion-icon name="key-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ chauffeurs | withPassword }}</div>
+        <div class="stat-label">Avec mot de passe</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon ruby"><ion-icon name="warning-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ chauffeurs | noCTag }}</div>
+        <div class="stat-label">Sans carte NFC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeleton Stats -->
+  <div class="stat-grid" *ngIf="loading">
+    <div class="stat-card" *ngFor="let i of [1,2,3,4]">
+      <div class="skeleton" style="width:48px;height:48px;border-radius:12px;flex-shrink:0;"></div>
+      <div class="stat-body">
+        <div class="skeleton skeleton-title" style="margin-bottom:8px;"></div>
+        <div class="skeleton skeleton-text" style="width:70%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+      <div class="table-search">
+        <ion-icon name="search-outline" style="color:var(--c-muted-light);font-size:16px;flex-shrink:0;"></ion-icon>
+        <input type="text" placeholder="Rechercher par matricule ou nom..."
+               [value]="keyword" (input)="onSearch($event)">
+      </div>
+      <div class="table-actions">
+        <button class="btn btn-outline btn-sm">
+          <ion-icon name="download-outline"></ion-icon> Exporter
+        </button>
+      </div>
+    </div>
+
+    <!-- Skeleton Rows -->
+    <div *ngIf="loading" style="padding:16px;">
+      <div *ngFor="let i of [1,2,3,4,5]"
+           style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--c-border);align-items:center;">
+        <div class="skeleton skeleton-avatar"></div>
+        <div style="flex:1;display:flex;gap:16px;align-items:center;">
+          <div class="skeleton" style="width:120px;height:14px;border-radius:4px;"></div>
+          <div class="skeleton" style="width:80px;height:14px;border-radius:4px;"></div>
+          <div class="skeleton" style="width:70px;height:22px;border-radius:999px;margin-left:auto;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div style="overflow-x:auto;" *ngIf="!loading">
+      <table class="data-table" *ngIf="chauffeurs.length > 0; else emptyTpl">
+        <thead>
+          <tr>
+            <th>Chauffeur</th>
+            <th>Matricule</th>
+            <th class="col-hide-mobile">Statut</th>
+            <th class="col-hide-mobile">Mot de passe</th>
+            <th>Carte NFC</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of chauffeurs" (click)="goToDetail(c.matricule)">
+            <td data-label="Chauffeur">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="row-avatar">{{ (c.nomPrenom || 'N').charAt(0).toUpperCase() }}</div>
+                <span style="font-weight:600;">{{ c.nomPrenom || '—' }}</span>
+              </div>
+            </td>
+            <td data-label="Matricule"><span class="code-tag">{{ c.matricule }}</span></td>
+            <td class="col-hide-mobile" data-label="Statut">
+              <span class="badge" [class.badge-success]="c.bActif" [class.badge-muted]="!c.bActif">
+                {{ c.bActif ? '● Actif' : '● Inactif' }}
+              </span>
+            </td>
+            <td class="col-hide-mobile" data-label="Mot de passe">
+              <span class="badge" [class.badge-success]="c.hasPassword" [class.badge-danger]="!c.hasPassword">
+                {{ c.hasPassword ? '✓ Défini' : '✗ Absent' }}
+              </span>
+            </td>
+            <td data-label="Carte NFC">
+              <span class="badge" [class.badge-success]="c.hasCTag" [class.badge-warning]="!c.hasCTag">
+                {{ c.hasCTag ? '📶 Assigné' : '⚠ Manquant' }}
+              </span>
+            </td>
+            <td class="table-row-action" (click)="$event.stopPropagation()">
+              <button class="btn btn-ghost btn-icon btn-sm" (click)="goToDetail(c.matricule)" aria-label="Voir détail">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty -->
+    <ng-template #emptyTpl>
+      <div class="empty-state">
+        <div class="empty-icon"><ion-icon name="people-outline"></ion-icon></div>
+        <div class="empty-title">Aucun chauffeur trouvé</div>
+        <div class="empty-desc">Modifiez votre recherche ou vérifiez la connexion à la base de données.</div>
+      </div>
+    </ng-template>
+
+    <!-- Error -->
+    <div *ngIf="error" class="error-banner">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <div>
+        <div class="error-banner-title">Erreur de chargement</div>
+        <div class="error-banner-msg">{{ error }}</div>
+      </div>
+      <button class="btn btn-outline btn-sm error-action" (click)="load()">Réessayer</button>
+    </div>
+
+    <!-- Pagination -->
+    <div class="table-pagination" *ngIf="!loading && chauffeurs.length > 0">
+      <span>{{ chauffeurs.length }} résultat{{ chauffeurs.length !== 1 ? 's' : '' }}</span>
+      <div class="pagination-btns">
+        <button class="page-btn" disabled>‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn" disabled>›</button>
+      </div>
+    </div>
+
+  </div>
+</div>

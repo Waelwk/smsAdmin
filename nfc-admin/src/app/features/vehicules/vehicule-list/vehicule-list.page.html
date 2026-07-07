@@ -1,0 +1,139 @@
+<div class="pg">
+
+  <!-- Header -->
+  <div class="pg-header">
+    <div>
+      <h1 class="pg-title">Véhicules</h1>
+      <p class="pg-sub"></p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid stat-grid--3" *ngIf="!loading">
+    <div class="stat-card">
+      <div class="stat-icon primary"><ion-icon name="car-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ vehicules.length }}</div>
+        <div class="stat-label">Total véhicules</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success"><ion-icon name="card-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ vehicules | withVCTag }}</div>
+        <div class="stat-label">Avec carte NFC</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon ruby"><ion-icon name="warning-outline"></ion-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ vehicules | noVCTag }}</div>
+        <div class="stat-label">Sans carte NFC</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-grid stat-grid--3" *ngIf="loading">
+    <div class="stat-card" *ngFor="let i of [1,2,3]">
+      <div class="skeleton" style="width:48px;height:48px;border-radius:12px;flex-shrink:0;"></div>
+      <div class="stat-body">
+        <div class="skeleton skeleton-title" style="margin-bottom:8px;"></div>
+        <div class="skeleton skeleton-text" style="width:70%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+
+    <div class="table-toolbar">
+      <div class="table-search">
+        <ion-icon name="search-outline" style="color:var(--c-muted-light);font-size:16px;flex-shrink:0;"></ion-icon>
+        <input type="text" placeholder="Rechercher véhicule, libellé, numéro de série..."
+               [value]="keyword" (input)="onSearch($event)">
+      </div>
+      <button class="btn btn-outline btn-sm table-action">
+        <ion-icon name="download-outline"></ion-icon> Exporter
+      </button>
+    </div>
+
+    <!-- Skeleton -->
+    <div *ngIf="loading" style="padding:16px;">
+      <div *ngFor="let i of [1,2,3,4]"
+           style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--c-border);align-items:center;">
+        <div class="skeleton" style="width:40px;height:40px;border-radius:10px;"></div>
+        <div style="flex:1;display:flex;gap:16px;align-items:center;">
+          <div class="skeleton" style="width:120px;height:14px;border-radius:4px;"></div>
+          <div class="skeleton" style="width:80px;height:14px;border-radius:4px;"></div>
+          <div class="skeleton" style="width:70px;height:22px;border-radius:999px;margin-left:auto;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;" *ngIf="!loading">
+      <table class="data-table" *ngIf="vehicules.length > 0; else emptyVehicules">
+        <thead>
+          <tr>
+            <th>Véhicule</th>
+            <th>Code</th>
+            <th class="col-hide-mobile">N° Série</th>
+            <th class="col-hide-mobile">Statut</th>
+            <th>Carte NFC</th>
+            <th style="width:60px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of vehicules" (click)="goToDetail(v.cVehicule)">
+            <td>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="row-avatar row-avatar--vehicle">🚗</div>
+                <span style="font-weight:600;">{{ v.libVehicule || '—' }}</span>
+              </div>
+            </td>
+            <td><span class="code-tag">{{ v.cVehicule }}</span></td>
+            <td class="col-hide-mobile" style="color:var(--c-muted);font-size:13px;">{{ v.numeroSerie || '—' }}</td>
+            <td class="col-hide-mobile">
+              <span class="badge" [class.badge-success]="v.bActif" [class.badge-muted]="!v.bActif">
+                {{ v.bActif ? '● Actif' : '● Inactif' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [class.badge-success]="v.hasCTag" [class.badge-warning]="!v.hasCTag">
+                {{ v.hasCTag ? '📶 Assigné' : '⚠ Manquant' }}
+              </span>
+            </td>
+            <td (click)="$event.stopPropagation()">
+              <button class="btn btn-ghost btn-icon btn-sm" (click)="goToDetail(v.cVehicule)" aria-label="Voir détail">
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptyVehicules>
+      <div class="empty-state">
+        <div class="empty-icon"><ion-icon name="car-outline"></ion-icon></div>
+        <div class="empty-title">Aucun véhicule trouvé</div>
+        <div class="empty-desc">Modifiez votre recherche.</div>
+      </div>
+    </ng-template>
+
+    <div *ngIf="error" class="error-banner">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+      <span class="error-content">{{ error }}</span>
+      <button class="btn btn-outline btn-sm" (click)="load()">Réessayer</button>
+    </div>
+
+    <div class="table-pagination" *ngIf="!loading && vehicules.length > 0">
+      <span>{{ vehicules.length }} résultat{{ vehicules.length !== 1 ? 's' : '' }}</span>
+      <div class="pagination-btns">
+        <button class="page-btn" disabled>‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn" disabled>›</button>
+      </div>
+    </div>
+
+  </div>
+</div>

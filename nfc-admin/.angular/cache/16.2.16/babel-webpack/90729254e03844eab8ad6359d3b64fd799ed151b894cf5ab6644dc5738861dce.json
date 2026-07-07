@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const environment = {\n  production: true,\n  apiUrl: 'https://votre-api.com/api'\n};","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}
